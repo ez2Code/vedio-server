@@ -21,16 +21,12 @@
 </head>
 
 <body>
-<% if (!!parentDirectory) { %>
-    <a href="/?=<%= parentDirectory %>">..</a><br/>
-<% } %>
-
 <% currentDirectories.forEach(item => { %>
-    <a href="/?currentPath=<%= item.current_path %>"><%= item.current_name %></a><br/>
+    <a href="/?currentPath=<%= item.path %>"><%= item.name %></a><br/>
 <% }); %>
 
 <% fileList.forEach(item => { %>
-    <a target="_blank" href="/player?file=<%= item.file_path %>"><%= item.file_name %></a><br/>
+    <a target="_blank" href="/player?file=<%= item.path %>"><%= item.name %></a><br/>
 <% }); %>
 </body>
 </html>

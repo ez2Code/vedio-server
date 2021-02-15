@@ -10,7 +10,8 @@ create table if not exists tbl_file_sys (
 #####
 create table if not exists tbl_scan_directory (
     id integer primary key autoincrement,
-    directory_path text unique
+    directory_path text unique,
+    directory_name text
 );
 
 #####

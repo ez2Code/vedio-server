@@ -2,15 +2,39 @@
 
 const Controller = require('egg').Controller;
 const fs = require("fs");
+const commonUtil = require('../utils/common');
 
 class HomeController extends Controller {
     async index() {
-        const {ctx} = this;
-        ctx.body = 'hi, egg';
+        const currentPath = this.ctx.query['currentPath'];
+        const rootDirectories = [];
+        const params = {
+            'table': 'tbl_scan_directory',
+            'select': ['*']
+        };
+        this.ctx.service.sqlite.select(params).forEach(item => {
+            rootDirectories.push({
+                'name': item['directory_name'],
+                'path': item['directory_path']
+            });
+        })
+        const data = {};
+        if (!!currentPath && commonUtil.existAny(rootDirectories, item => currentPath.startsWith(item['path']))) {
+            const children = this.ctx.service.directoryScanner.scan(currentPath);
+            data['currentDirectories'] = [{
+                'path': getParentPath(currentPath),
+                'name': '..'
+            }].concat(children['directories']);
+            data['fileList'] = children['files']
+        } else {
+            data['currentDirectories'] = rootDirectories;
+            data['fileList'] = [];
+        }
+        await this.ctx.render('index.ejs', data);
     }
 
-    async share() {
-        await this.ctx.render('index.ejs');
+    async player() {
+        await this.ctx.render('player.ejs', {file: this.ctx.query['file']});
     }
 
     async video() {
@@ -20,7 +44,7 @@ class HomeController extends Controller {
             ctx.res.status(400).send("Requires Range header");
         }
         // get video stats (about 61MB)
-        const videoPath = "/Users/levy/Downloads/flame-game.of.thrones.conquest.and.rebellion.2017.720p.bluray.x264.mkv";
+        const videoPath = this.ctx.query['file'];
         const videoSize = fs.statSync(videoPath).size;
         // Parse Range
         // Example: "bytes=32324-"
@@ -48,5 +72,11 @@ class HomeController extends Controller {
         this.ctx.body = fs.createReadStream(videoPath, {start, end});
     }
 }
+
+function getParentPath(currentPath) {
+    const lastPointIndex = currentPath.lastIndexOf('/');
+    return lastPointIndex > 0 ? currentPath.substring(0, lastPointIndex) : currentPath;
+}
+
 
 module.exports = HomeController;
