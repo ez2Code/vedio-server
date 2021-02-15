@@ -71,6 +71,22 @@ class HomeController extends Controller {
         // Stream the video chunk to the client
         this.ctx.body = fs.createReadStream(videoPath, {start, end});
     }
+
+    async addRoot() {
+        const directory = this.ctx.query['directory'];
+        const params = {
+            'table': 'tbl_scan_directory',
+            'values': {
+                'directory_path': directory,
+                'directory_name': getFileName(directory)
+            }
+        }
+        if (fs.statSync(directory).isDirectory()) {
+            this.ctx.service.sqlite.insert(params);
+        }
+        this.ctx.body = 'ok';
+    }
+
 }
 
 function getParentPath(currentPath) {
@@ -78,5 +94,9 @@ function getParentPath(currentPath) {
     return lastPointIndex > 0 ? currentPath.substring(0, lastPointIndex) : currentPath;
 }
 
+function getFileName(currentPath) {
+    const lastPointIndex = currentPath.lastIndexOf('/') + 1;
+    return lastPointIndex > 0 ? currentPath.substring(lastPointIndex) : currentPath;
+}
 
 module.exports = HomeController;

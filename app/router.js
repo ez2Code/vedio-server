@@ -8,4 +8,5 @@ module.exports = app => {
     router.get('/', controller.home.index);
     router.get('/player', controller.home.player);
     router.get('/video', controller.home.video);
+    router.get('/addRoot', controller.home.addRoot);
 };
