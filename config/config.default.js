@@ -30,7 +30,7 @@ module.exports = appInfo => {
     const userConfig = {
         // myAppName: 'egg',
     };
-    config.sqlitePath = path.join(__dirname, '../video.db')
+    config.sqlitePath = path.join(__dirname, '../../.video.db')
 
     return {
         ...config,
